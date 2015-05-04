@@ -1,8 +1,6 @@
-add node0, node1 : JavascriptNode
-add sync: WebSocketGroup
+add %node%, %%NODE1%% : JavascriptNode
+add sync: WSGroup
 
-attach node0, node1 sync
+attach %node%, %%NODE1%% sync
 
-set sync.port/node0 = "8088"
-
-network node0.lo.ip 127.0.0.1
+network %node%.lo.ip 127.0.0.1

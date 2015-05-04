@@ -28,6 +28,7 @@ var NodeJSRuntime = require('./lib/NodeJSRuntime'),
         .describe('groupPort', 'Port number to bind node to group')
         .describe('model', 'A JSON model to bootstrap on')
         .describe('kevscript', 'A KevScript model to bootstrap on')
+        .describe('ctxVar', 'A context variable to replace a %NAME% in the script (usage: --ctxVar NAME=foo)')
         .describe('modulesPath', 'Where to install resolved deploy units')
         .describe('logLevel', 'Level of the logger before node platform starts (all|debug|info|warn|error|quiet)')
         .describe('help', 'Displays this help')
@@ -92,12 +93,36 @@ if (argv.argv.help) {
                     log.error(err.message);
                     errorHandler();
                 } else {
+                    var ctxVars = {};
+                    if (argv.ctxVar) {
+                        if (argv.ctxVar.constructor === Array) {
+                            argv.ctxVar.forEach(function (ctxvar) {
+                                var data = ctxvar.split('=');
+                                ctxVars[data[0]] = data[1];
+                            });
+                        } else {
+                            var data = argv.ctxVar.split('=');
+                            ctxVars[data[0]] = data[1];
+                        }
+                    }
                     var kevs = new KevScript();
-                    kevs.parse(text, function (err, model) {
+                    kevs.parse(text, null, ctxVars, function (err, model) {
                         if (err) {
                             log.error('Unable to load Kevoree KevScript: '+err.message);
-                            errorHandler();
+                            log.error('Platform shut down.');
+                            process.exit(1);
                         } else {
+                            var keys = Object.keys(ctxVars);
+                            if (keys.length > 0) {
+                                var strCtxVars = '';
+                                keys.forEach(function (key, i) {
+                                    strCtxVars += key+'='+ctxVars[key];
+                                    if (i < keys.length -1) {
+                                        strCtxVars += ', ';
+                                    }
+                                });
+                                log.debug('KevScript context variables: '+strCtxVars);
+                            }
                             runtime.deploy(model);
                         }
                     });
