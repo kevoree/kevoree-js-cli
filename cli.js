@@ -150,7 +150,7 @@ if (argv.argv.help) {
         if (argv.model && argv.model.length > 0) {
             var modelPath = path.resolve(argv.model);
             try {
-                return loader.loadModelFromString(JSON.stringify(fs.readFileSync(modelPath, 'utf8'))).get(0);
+                return loader.loadModelFromString(fs.readFileSync(modelPath, 'utf8')).get(0);
             } catch (err) {
                 log.error('Unable to load Kevoree JSON model: '+err.message);
                 errorHandler();
