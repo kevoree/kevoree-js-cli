@@ -167,6 +167,11 @@ if (argv.argv.help) {
                 log.error('Unable to load Kevoree JSON model: '+err.message);
                 errorHandler();
             }
+        } else {
+            // start kevoree core
+            runtime.start(argv.nodeName, argv.groupName, argv.groupPort, logLevel);
+            // deploy null model => it will create a default one
+            runtime.deploy();
         }
     }
 }
