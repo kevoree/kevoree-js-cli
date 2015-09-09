@@ -78,9 +78,24 @@ if (argv.argv.help) {
     }
 
     var resolver = new NPMResolver(argv.modulesPath, log);
-    var runtime = new NodeJSRuntime(argv.modulesPath, log, resolver);
+    var runtime  = new NodeJSRuntime(argv.modulesPath, log, resolver);
     var factory  = new kevoree.factory.DefaultKevoreeFactory();
     var loader   = factory.createJSONLoader();
+    var saver    = factory.createJSONSerializer();
+
+    var ctxModel = factory.createContainerRoot();
+    try {
+      var rootModulesPath = path.resolve(argv.modulesPath, 'node_modules');
+      var dirs = fs.readdirSync(rootModulesPath);
+      var compare = factory.createModelCompare();
+      dirs.forEach(function (dir) {
+        try {
+          var dirModelStr = fs.readFileSync(path.resolve(rootModulesPath, dir, 'kevlib.json'), { encoding: 'utf8'});
+          var dirModel = loader.loadModelFromString(dirModelStr).get(0);
+          compare.merge(ctxModel, dirModel).applyOn(ctxModel);
+        } catch (err) { /* ignore */ }
+      });
+    } catch (err) { /* ignore */ }
 
     // runtime error handler
     var errorHandler = function () {
@@ -123,7 +138,7 @@ if (argv.argv.help) {
                     }
                 }
                 var kevs = new KevScript();
-                kevs.parse(text, null, ctxVars, function (err, model) {
+                kevs.parse(text, ctxModel, ctxVars, function (err, model) {
                     if (err) {
                         log.error('Unable to load Kevoree KevScript: '+err.message);
                         log.error('Platform shut down.');
