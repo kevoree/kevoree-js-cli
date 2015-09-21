@@ -104,17 +104,8 @@ if (argv.argv.help) {
         process.exit(1);
     };
 
-    runtime.once('deployError', errorHandler);
-    runtime.once('adaptationError', errorHandler);
-
     runtime.on('stopped', function () {
         process.exit(0);
-    });
-
-    runtime.once('deployed', function deployHandler() {
-        runtime.off('deployed', deployHandler);
-        runtime.off('deployError', errorHandler);
-        runtime.off('adaptationError', errorHandler);
     });
 
     // read the model to deploy
