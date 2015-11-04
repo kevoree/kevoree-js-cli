@@ -14,7 +14,7 @@
     "kevoree-core": "^8.0.1",
     "kevoree-kevscript": "^3.0.0",
     "kevoree-library": "^5.0.4",
-    "kevoree-resolvers": "^3.0.0",
+    "kevoree-resolvers": "^2",
     "optimist": "~0.6.1"
   },
   "license": "LGPL-3.0",
