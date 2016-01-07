@@ -16,3 +16,8 @@ Usage documentation is available by using the `-h` flag:
 ```sh
 kevoreejs -h
 ```
+
+**NB** You can override the Kevoree registry your runtime uses by specifying two ENV VAR:
+```sh
+KEVOREE_REGISTRY_HOST=localhost KEVOREE_REGISTRY_PORT=9000 kevoreejs
+```
