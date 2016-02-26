@@ -18,7 +18,6 @@
     "optimist": "~0.6.1"
   },
   "license": "LGPL-3.0",
-  "devDependencies": {},
   "keywords": [
     "kevoree",
     "runtime",
