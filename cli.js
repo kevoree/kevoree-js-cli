@@ -23,7 +23,7 @@ var argv = optimist
     .default('n', 'node0')
     .default('g', 'sync')
     .default('gp', 9000)
-    .default('p', os.tmpdir())
+    .default('p', path.join(os.homedir(), '.kevoree', 'js'))
     .default('l', 'info')
     .describe('nodeName', 'Name of this runtime node platform')
     .describe('groupName', 'Name of the group your node platform is related to')
