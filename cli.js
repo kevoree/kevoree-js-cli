@@ -82,7 +82,6 @@ if (argv.argv.help) {
   var runtime = new NodeJSRuntime(argv.modulesPath, log, resolver);
   var factory = new kevoree.factory.DefaultKevoreeFactory();
   var loader = factory.createJSONLoader();
-  var saver = factory.createJSONSerializer();
 
   var ctxModel = factory.createContainerRoot();
   try {
