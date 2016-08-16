@@ -7,8 +7,9 @@ var NodeJSRuntime = require('./lib/NodeJSRuntime'),
   path = require('path'),
   os = require('os'),
   fs = require('fs'),
-  nconf = require('kevoree-nconf'),
+  config = require('tiny-conf'),
   kevoree = require('kevoree-library'),
+  kConst = require('kevoree-const'),
   NPMResolver = require('kevoree-resolvers').NPMResolver,
   KevScript = require('kevoree-kevscript'),
   mkdirp = require('mkdirp'),
@@ -44,9 +45,8 @@ var argv = optimist
   .describe('help', 'Displays this help')
   .describe('version', 'Displays Kevoree Node.js Runtime version');
 
-var HOME_DIR = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
-var KREGRC_PATH = path.resolve(HOME_DIR, '.kregrc.json');
-nconf.argv({ 'registry.ssl': { type: 'boolean' } }).file(KREGRC_PATH).use('memory');
+require('tiny-conf-plugin-file')(config, kConst.CONFIG_PATH);
+require('tiny-conf-plugin-argv')(config);
 
 var logLevel;
 if (argv.argv.help) {
@@ -56,7 +56,7 @@ if (argv.argv.help) {
 } else {
   argv = argv.argv;
   var log = new KevoreeLogger('Runtime');
-  var logLevel = nconf.get('log:level');
+  var logLevel = config.get('log.level');
   if (logLevel) {
     log.setLevel(logLevel);
   }
