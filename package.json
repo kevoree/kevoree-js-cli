@@ -1,14 +1,14 @@
 {
   "name": "kevoree-nodejs-runtime",
-  "version": "5.7.0-alpha.2",
+  "version": "5.7.0-alpha.3",
   "author": "Maxime Tricoire <max.tricoire@gmail.com>",
   "main": "./lib/NodeJSRuntime",
   "preferGlobal": true,
   "bin": {
-    "kevoree": "./bin/kevoree.js"
+    "kevoree": "./bin/kevoree"
   },
   "scripts": {
-    "start": "node ./bin/kevoree.js"
+    "start": "node ./bin/kevoree"
   },
   "dependencies": {
     "commander": "^2.9.0",
