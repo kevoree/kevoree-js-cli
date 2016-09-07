@@ -2,4 +2,128 @@
 
 'use strict';
 
-console.log('"init" NOT IMPLEMENTED YET');
+const fs = require('fs');
+const path = require('path');
+const kConst = require('kevoree-const');
+const mkdirp = require('mkdirp');
+const ora = require('ora');
+const chalk = require('chalk');
+const inquirer = require('inquirer');
+
+const DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..');
+const CONF_FILE_PATH = path.join(DEFAULT_MODULES_PATH, 'config.json');
+
+console.log('Initializing ' + CONF_FILE_PATH + ':');
+
+const spinner = ora('Initiating Kevoree config...').start();
+
+new Promise(function (resolve, reject) {
+  mkdirp(DEFAULT_MODULES_PATH, function (err) {
+    if (err) {
+      reject(err);
+    } else {
+      resolve();
+    }
+  });
+}).then(function () {
+  spinner.stop();
+  return inquirer.prompt([
+    {
+      name: 'login',
+      type: 'string',
+      message: 'login',
+      validate: function (val) {
+        if (val.match(/^[a-z0-9]+$/)) {
+          return true;
+        }
+        return 'Login must match ' + /^[a-z0-9]+$/;
+      }
+    },
+    {
+      name: 'password',
+      type: 'password',
+      message: 'password',
+      validate: function (val) {
+        if (val.length >= 6 && val.length <= 100) {
+          return true;
+        }
+        return 'Password must be at least 6 characters';
+      }
+    },
+    {
+      name: 'host',
+      type: 'string',
+      message: 'Kevoree registry host',
+      validate: function (val) {
+        if (val.length > 0) {
+          return true;
+        }
+        return 'Invalid hostname';
+      }
+    },
+    {
+      name: 'port',
+      type: 'number',
+      message: 'Kevoree registry port',
+      validate: function (val) {
+        val = +val;
+        if (val >= 1 && val <= 65535) {
+          return true;
+        }
+        return 'Invalid port. Range [1, 65535]';
+      }
+    },
+    {
+      name: 'ssl',
+      type: 'boolean',
+      message: 'Kevoree registry SSL'
+    },
+    {
+      name: 'clientSecret',
+      type: 'string',
+      default: 'kevoree_registryapp_secret',
+      message: 'Kevoree registry OAuth client_secret'
+    },
+    {
+      name: 'clientId',
+      type: 'string',
+      default: 'kevoree_registryapp',
+      message: 'Kevoree registry OAuth client_id'
+    }
+  ]);
+}).then(function (answers) {
+  const conf = JSON.stringify({
+    user: {
+      login: answers.login,
+      password: answers.password,
+    },
+    registry: {
+      host: answers.host,
+      port: answers.port,
+      ssl: answers.ssl,
+      oauth: {
+        client_secret: answers.clientSecret,
+        client_id: answers.clientId
+      }
+    }
+  }, null, 2);
+
+  return new Promise(function (resolve, reject) {
+    fs.writeFile(CONF_FILE_PATH, conf, function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        console.log();
+        console.log('Kevoree configuration file created at: ' + chalk.gray(CONF_FILE_PATH));
+        resolve();
+      }
+    });
+  });
+}).then(function () {
+  console.log(chalk.green('Done.'));
+}).catch(function (err) {
+  spinner.stop();
+  console.log(chalk.red('Something went wrong :/'));
+  console.log(err.stack);
+  process.exit(1);
+});

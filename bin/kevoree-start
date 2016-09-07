@@ -4,17 +4,17 @@
 
 const INSTANCE_NAME = /^([a-z][a-zA-Z0-9_]*)|(%%[\w]+%%)$/;
 
-var fs = require('fs');
-var path = require('path');
-var commander = require('commander');
-var config = require('tiny-conf');
-var kConst = require('kevoree-const');
-var kCommons = require('kevoree-commons');
-var kLibrary = require('kevoree-library');
-var NPMResolver = require('kevoree-resolvers').NPMResolver;
-var KevScript = require('kevoree-kevscript');
-var mkdirp = require('mkdirp');
-var NodeJSRuntime = require('../lib/NodeJSRuntime');
+const fs = require('fs');
+const path = require('path');
+const commander = require('commander');
+const config = require('tiny-conf');
+const kConst = require('kevoree-const');
+const kCommons = require('kevoree-commons');
+const kLibrary = require('kevoree-library');
+const NPMResolver = require('kevoree-resolvers').NPMResolver;
+const KevScript = require('kevoree-kevscript');
+const mkdirp = require('mkdirp');
+const NodeJSRuntime = require('../lib/NodeJSRuntime');
 
 const DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..');
 
@@ -44,6 +44,7 @@ commander
   .option('--ctxVar [key=value]', 'Context variables to use in the KevScript if any (eg. --ctxVar key=value --ctxVar key2=value2)')
   .option('-p --modules-path <value>', 'Path to the cache folder where modules will be installed (defaults to "'+DEFAULT_MODULES_PATH+'")', DEFAULT_MODULES_PATH)
   .option('-o --offline', 'Offline mode merges cached modules as context model')
+  .option('--skipIntegrityCheck', 'Disable npm resolver integrity check (DEV only)')
   .allowUnknownOption()
   .parse(process.argv);
 
@@ -60,8 +61,8 @@ mkdirp(commander.modulesPath, function (err) {
   if (err) {
     throw err;
   } else {
-    var kevs = new KevScript(log, new KevScript.cache.MemoryCache());
-    var resolver = new NPMResolver(commander.modulesPath, log);
+    var kevs = new KevScript(log);
+    var resolver = new NPMResolver(commander.modulesPath, log, commander.skipIntegrityCheck);
     var runtime = new NodeJSRuntime(commander.modulesPath, log, resolver, kevs);
     var factory = new kLibrary.factory.DefaultKevoreeFactory();
     var loader = factory.createJSONLoader();
@@ -154,8 +155,12 @@ mkdirp(commander.modulesPath, function (err) {
                   if (nodeName.startsWith('%%') && nodeName.endsWith('%%')) {
                     nodeName = ctxVars[nodeName.substring(2, nodeName.length - 2)];
                   }
+                  if (nodeName.startsWith('%') && nodeName.endsWith('%')) {
+                    nodeName = ctxVars[nodeName.substring(1, nodeName.length - 1)];
+                  }
                   // start kevoree core
                   runtime.start(nodeName, commander.groupName, commander.groupPort, logLevel);
+
                   // deploy the model
                   runtime.deploy(model);
                 }

@@ -1,6 +1,6 @@
 {
   "name": "kevoree-nodejs-runtime",
-  "version": "5.7.0-alpha.3",
+  "version": "5.7.0-alpha.4",
   "author": "Maxime Tricoire <max.tricoire@gmail.com>",
   "main": "./lib/NodeJSRuntime",
   "preferGlobal": true,
@@ -11,14 +11,18 @@
     "start": "node ./bin/kevoree"
   },
   "dependencies": {
+    "chalk": "^1.1.3",
     "commander": "^2.9.0",
+    "inquirer": "^1.1.3",
     "kevoree-commons": "next",
     "kevoree-const": "^1.0.1",
     "kevoree-core": "next",
     "kevoree-kevscript": "next",
     "kevoree-library": "next",
-    "kevoree-resolvers": "^4.0.0-beta",
+    "kevoree-resolvers": "next",
     "mkdirp": "^0.5.1",
+    "ora": "^0.3.0",
+    "rmrf": "^1.0.2",
     "tiny-conf": "^1.0.0",
     "tiny-conf-plugin-argv": "^1.0.0",
     "tiny-conf-plugin-file": "^1.0.0"

@@ -2,4 +2,22 @@
 
 'use strict';
 
-console.log('"clean" NOT IMPLEMENTED YET');
+const rmrf = require('rmrf');
+const path = require('path');
+const kConst = require('kevoree-const');
+const ora = require('ora');
+const chalk = require('chalk');
+
+const DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..', 'node_modules');
+
+var spinner = ora('Cleaning ' + DEFAULT_MODULES_PATH + '...');
+
+try {
+  console.log('Cleaning ' + chalk.gray(DEFAULT_MODULES_PATH));
+  rmrf(DEFAULT_MODULES_PATH);
+  spinner.stop();
+  console.log(chalk.green('Done'));
+} catch (err) {
+  spinner.stop();
+  console.error(err);
+}
