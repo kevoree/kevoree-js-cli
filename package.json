@@ -8,8 +8,7 @@
     "kevoree": "./bin/kevoree"
   },
   "scripts": {
-    "start": "node ./bin/kevoree",
-    "prepublish": "webpack"
+    "start": "node ./bin/kevoree"
   },
   "dependencies": {
     "chalk": "^1.1.3",
