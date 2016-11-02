@@ -25,9 +25,15 @@
     "rmrf": "^1.0.2",
     "tiny-conf": "^1.0.0",
     "tiny-conf-plugin-argv": "^1.0.0",
-    "tiny-conf-plugin-file": "^1.0.0"
+    "tiny-conf-plugin-file": "^1.0.0",
+    "valid-url": "^1.0.9"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^3.9.1",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-promise": "^3.3.0",
+    "eslint-plugin-standard": "^2.0.1"
+  },
   "license": "LGPL-3.0",
   "keywords": [
     "kevoree",
@@ -48,5 +54,12 @@
   "bugs": {
     "url": "https://github.com/kevoree/kevoree-nodejs-runtime/issues"
   },
-  "homepage": "https://github.com/kevoree/kevoree-nodejs-runtime"
+  "homepage": "https://github.com/kevoree/kevoree-nodejs-runtime",
+  "eslintConfig": {
+    "extends": "eslint-config-standard",
+    "rules": {
+      "semi": 0,
+      "space-before-function-paren": 0
+    }
+  }
 }

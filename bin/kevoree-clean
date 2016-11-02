@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
-'use strict';
+var rmrf = require('rmrf');
+var path = require('path');
+var kConst = require('kevoree-const');
+var ora = require('ora');
+var chalk = require('chalk');
 
-const rmrf = require('rmrf');
-const path = require('path');
-const kConst = require('kevoree-const');
-const ora = require('ora');
-const chalk = require('chalk');
-
-const DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..', 'node_modules');
+var DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..', 'node_modules');
 
 var spinner = ora('Cleaning ' + DEFAULT_MODULES_PATH + '...');
 

@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 
-'use strict';
+var fs = require('fs');
+var path = require('path');
+var kConst = require('kevoree-const');
+var mkdirp = require('mkdirp');
+var ora = require('ora');
+var chalk = require('chalk');
+var inquirer = require('inquirer');
+var validUrl = require('valid-url');
+var url = require('url');
 
-const fs = require('fs');
-const path = require('path');
-const kConst = require('kevoree-const');
-const mkdirp = require('mkdirp');
-const ora = require('ora');
-const chalk = require('chalk');
-const inquirer = require('inquirer');
-
-const DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..');
-const CONF_FILE_PATH = path.join(DEFAULT_MODULES_PATH, 'config.json');
+var DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..');
+var CONF_FILE_PATH = path.join(DEFAULT_MODULES_PATH, 'config.json');
 
 console.log('Initializing ' + CONF_FILE_PATH + ':');
 
-const spinner = ora('Initiating Kevoree config...').start();
+var spinner = ora('Initiating Kevoree config...').start();
 
 new Promise(function (resolve, reject) {
   mkdirp(DEFAULT_MODULES_PATH, function (err) {
@@ -51,32 +51,16 @@ new Promise(function (resolve, reject) {
       }
     },
     {
-      name: 'host',
+      name: 'registry',
       type: 'string',
-      message: 'Kevoree registry host',
+      message: 'Kevoree Registry URL',
+      default: 'https://registry.kevoree.org',
       validate: function (val) {
-        if (val.length > 0) {
+        if (validUrl.isUri(val)) {
           return true;
         }
-        return 'Invalid hostname';
+        return 'Invalid URI';
       }
-    },
-    {
-      name: 'port',
-      type: 'number',
-      message: 'Kevoree registry port',
-      validate: function (val) {
-        val = +val;
-        if (val >= 1 && val <= 65535) {
-          return true;
-        }
-        return 'Invalid port. Range [1, 65535]';
-      }
-    },
-    {
-      name: 'ssl',
-      type: 'boolean',
-      message: 'Kevoree registry SSL'
     },
     {
       name: 'clientSecret',
@@ -92,15 +76,17 @@ new Promise(function (resolve, reject) {
     }
   ]);
 }).then(function (answers) {
-  const conf = JSON.stringify({
+  var parsedUrl = url.parse(answers.registry);
+
+  var conf = JSON.stringify({
     user: {
       login: answers.login,
-      password: answers.password,
+      password: answers.password
     },
     registry: {
-      host: answers.host,
-      port: answers.port,
-      ssl: answers.ssl,
+      host: parsedUrl.host,
+      port: parsedUrl.port,
+      ssl: parsedUrl.proto === 'https:',
       oauth: {
         client_secret: answers.clientSecret,
         client_id: answers.clientId
