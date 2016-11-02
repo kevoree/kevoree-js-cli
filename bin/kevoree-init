@@ -85,8 +85,8 @@ new Promise(function (resolve, reject) {
     },
     registry: {
       host: parsedUrl.host,
-      port: parsedUrl.port,
-      ssl: parsedUrl.proto === 'https:',
+      port: parsedUrl.port ? parsedUrl.port : 443,
+      ssl: parsedUrl.protocol === 'https:',
       oauth: {
         client_secret: answers.clientSecret,
         client_id: answers.clientId
