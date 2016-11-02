@@ -95,7 +95,7 @@ new Promise(function (resolve, reject) {
   }, null, 2);
 
   return new Promise(function (resolve, reject) {
-    fs.writeFile(CONF_FILE_PATH, conf, function (err) {
+    fs.writeFile(CONF_FILE_PATH, conf, { mode: 0o600 }, function (err) {
       if (err) {
         reject(err);
       } else {
