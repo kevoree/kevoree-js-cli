@@ -1,4 +1,5 @@
-## Kevoree command-line client - Node.js Platform
+## Kevoree Javascript command-line client
+[![NPM](https://nodei.co/npm/kevoree-cli.png)](https://nodei.co/npm/kevoree-cli/)
 
 ### Install
 Prefer a global install for this module as it is intended to be used as a client tool:
