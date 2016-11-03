@@ -1,23 +1,39 @@
 ## Kevoree NodeJS Runtime
 
 ### Install
-Prefer a global install for this module as it is intended to be used that way:
+Prefer a global install for this module as it is intended to be used as a client tool:
 ```sh
-npm i -g kevoree-nodejs-runtime
+npm i -g kevoree-cli
 ```
 
-This will allow you to start a new **Kevoree** JavaScript runtime from the command-line by using:
+Now we can start a new **Kevoree** JavaScript runtime from the command-line by using:
 ```sh
-kevoreejs
+kevoree start
 ```
 
 ### Usage
-Usage documentation is available by using the `-h` flag:
+Usage documentation is available by using the `-h` flag (or nothing):
 ```sh
-kevoreejs -h
+kevoree -h
+```
+Outputs:
+```
+$ kevoree
+
+  Usage: kevoree [options] [command]
+
+
+  Commands:
+
+    clean       Delete installed modules out of the cache folder
+    init        Initialize Kevoree's config file
+    start       Start a Kevoree Javascript runtime
+    help [cmd]  display help for [cmd]
+
+  Options:
+
+    -h, --help     output usage information
+    -V, --version  output the version number
 ```
 
-**NB** You can override the Kevoree registry your runtime uses by specifying two ENV VAR:
-```sh
-KEVOREE_REGISTRY_HOST=localhost KEVOREE_REGISTRY_PORT=9000 kevoreejs
-```
+> To get more details about a command: `$ kevoree help <command>`

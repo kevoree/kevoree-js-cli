@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
-var kConst = require('kevoree-const');
 var commander = require('commander');
 var pkg = require('../package.json');
 
 commander.version(pkg.version);
 
 commander.command('clean', 'Delete installed modules out of the cache folder');
-commander.command('init', 'Initialize Kevoree\'s ' + kConst.CONFIG_PATH);
-commander.command('start', 'Start a Kevoree Javascript runtime (default command)');
+commander.command('init', 'Initialize Kevoree\'s config file');
+commander.command('start', 'Start a Kevoree Javascript runtime');
 
 commander.parse(process.argv);
+
+process.on('SIGINT', function () {
+  /* noop to prevent commander to mess with the stdout */
+});
