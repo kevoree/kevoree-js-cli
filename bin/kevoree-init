@@ -13,9 +13,7 @@ var url = require('url');
 var DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..');
 var CONF_FILE_PATH = path.join(DEFAULT_MODULES_PATH, 'config.json');
 
-console.log('Initializing ' + CONF_FILE_PATH + ':');
-
-var spinner = ora('Initiating Kevoree config...').start();
+var spinner = ora('Initializing Kevoree config...').start();
 
 new Promise(function (resolve, reject) {
   mkdirp(DEFAULT_MODULES_PATH, function (err) {
@@ -26,89 +24,118 @@ new Promise(function (resolve, reject) {
     }
   });
 }).then(function () {
-  spinner.stop();
-  return inquirer.prompt([
-    {
-      name: 'login',
-      type: 'string',
-      message: 'login',
-      validate: function (val) {
-        if (val.match(/^[a-z0-9]+$/)) {
-          return true;
-        }
-        return 'Login must match ' + /^[a-z0-9]+$/;
-      }
-    },
-    {
-      name: 'password',
-      type: 'password',
-      message: 'password',
-      validate: function (val) {
-        if (val.length >= 6 && val.length <= 100) {
-          return true;
-        }
-        return 'Password must be at least 6 characters';
-      }
-    },
-    {
-      name: 'registry',
-      type: 'string',
-      message: 'Kevoree Registry URL',
-      default: 'https://registry.kevoree.org',
-      validate: function (val) {
-        if (validUrl.isUri(val)) {
-          return true;
-        }
-        return 'Invalid URI';
-      }
-    },
-    {
-      name: 'clientSecret',
-      type: 'string',
-      default: 'kevoree_registryapp_secret',
-      message: 'Kevoree registry OAuth client_secret'
-    },
-    {
-      name: 'clientId',
-      type: 'string',
-      default: 'kevoree_registryapp',
-      message: 'Kevoree registry OAuth client_id'
-    }
-  ]);
-}).then(function (answers) {
-  var parsedUrl = url.parse(answers.registry);
-
-  var conf = JSON.stringify({
-    user: {
-      login: answers.login,
-      password: answers.password
-    },
-    registry: {
-      host: parsedUrl.host,
-      port: parsedUrl.port ? parsedUrl.port : 443,
-      ssl: parsedUrl.protocol === 'https:',
-      oauth: {
-        client_secret: answers.clientSecret,
-        client_id: answers.clientId
-      }
-    }
-  }, null, 2);
-
   return new Promise(function (resolve, reject) {
-    fs.writeFile(CONF_FILE_PATH, conf, { mode: 0o600 }, function (err) {
+    fs.lstat(CONF_FILE_PATH, function (err, stats) {
       if (err) {
-        reject(err);
+        resolve(false);
       } else {
-        console.log();
-        console.log('Kevoree configuration file created at: ' + chalk.gray(CONF_FILE_PATH));
-        resolve();
+        resolve(stats.isFile());
       }
-    });
+    })
   });
-}).then(function () {
-  console.log(chalk.green('Done.'));
-}).catch(function (err) {
+}).then(function (alreadyExists) {
   spinner.stop();
+  if (alreadyExists) {
+    console.log(chalk.yellow('Warning:'), 'there is already a config file at "' + CONF_FILE_PATH + '"');
+    return inquirer.prompt([
+      {
+        name: 'overwrite',
+        type: 'confirm',
+        message: 'Overwrite',
+        default: false
+      }
+    ]);
+  } else {
+    return {};
+  }
+}).then(function (answer) {
+  if (answer.overwrite) {
+    return inquirer.prompt([
+      {
+        name: 'login',
+        type: 'string',
+        message: 'login',
+        validate: function (val) {
+          if (val.match(/^[a-z0-9]+$/)) {
+            return true;
+          }
+          return 'Login must match ' + /^[a-z0-9]+$/;
+        }
+      },
+      {
+        name: 'password',
+        type: 'password',
+        message: 'password',
+        validate: function (val) {
+          if (val.length >= 6 && val.length <= 100) {
+            return true;
+          }
+          return 'Password must be at least 6 characters';
+        }
+      },
+      {
+        name: 'registry',
+        type: 'string',
+        message: 'Kevoree Registry URL',
+        default: 'https://registry.kevoree.org',
+        validate: function (val) {
+          if (validUrl.isUri(val)) {
+            return true;
+          }
+          return 'Invalid URI';
+        }
+      },
+      {
+        name: 'clientSecret',
+        type: 'string',
+        default: 'kevoree_registryapp_secret',
+        message: 'Kevoree registry OAuth client_secret'
+      },
+      {
+        name: 'clientId',
+        type: 'string',
+        default: 'kevoree_registryapp',
+        message: 'Kevoree registry OAuth client_id'
+      }
+    ]).then(function (answers) {
+      var parsedUrl = url.parse(answers.registry);
+
+      var conf = JSON.stringify({
+        user: {
+          login: answers.login,
+          password: answers.password
+        },
+        registry: {
+          host: parsedUrl.host,
+          port: parsedUrl.port ? parsedUrl.port : 443,
+          ssl: parsedUrl.protocol === 'https:',
+          oauth: {
+            client_secret: answers.clientSecret,
+            client_id: answers.clientId
+          }
+        }
+      }, null, 2);
+
+      return new Promise(function (resolve, reject) {
+        fs.writeFile(CONF_FILE_PATH, conf, { mode: 0o600 }, function (err) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(true);
+          }
+        });
+      });
+    });
+  }
+}).then(function (modified) {
+  console.log();
+  if (modified) {
+    console.log('File created at: ' + chalk.gray(CONF_FILE_PATH));
+  } else {
+    console.log(chalk.green('No changes'));
+  }
+}).catch(function (err) {
+  spinner.stop(); // (re-)stop spinner (ie. in case of error it will stop it)
   console.log(chalk.red('Something went wrong :/'));
   console.log(err.stack);
   process.exit(1);
