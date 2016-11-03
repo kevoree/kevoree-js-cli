@@ -6,11 +6,6 @@ Prefer a global install for this module as it is intended to be used as a client
 npm i -g kevoree-cli
 ```
 
-Now we can start a new **Kevoree** JavaScript runtime from the command-line by using:
-```sh
-kevoree start
-```
-
 ### Usage
 Usage documentation is available by using the `-h` flag (or nothing):
 ```sh
@@ -37,3 +32,21 @@ $ kevoree
 ```
 
 > To get more details about a command: `$ kevoree help <command>`
+
+### Start a runtime
+Now we can start a new **Kevoree** JavaScript runtime from the command-line by using:
+```sh
+kevoree start
+```
+
+> This command will start a runtime based on a default model if none given (with `-m /path/to/model.{json,kevs}`)  
+> ```
+> // default model
+> add node0: JavascriptNode
+> add sync: WSGroup
+>
+> attach node0 sync
+>
+> set sync.port/node0 = '9000'
+> ```
+> This behavior will result in a port conflict if you try to run several *"default"* runtime on the same machine.
