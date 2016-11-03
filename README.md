@@ -1,4 +1,4 @@
-## Kevoree NodeJS Runtime
+## Kevoree command-line client - Node.js Platform
 
 ### Install
 Prefer a global install for this module as it is intended to be used as a client tool:
