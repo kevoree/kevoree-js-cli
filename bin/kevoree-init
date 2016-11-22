@@ -46,7 +46,9 @@ new Promise(function (resolve, reject) {
       }
     ]);
   } else {
-    return {};
+    return {
+      overwrite: true
+    };
   }
 }).then(function (answer) {
   if (answer.overwrite) {
