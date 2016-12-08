@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+var path = require('path');
+var kConst = require('kevoree-const');
+var printConfig = require('../lib/printConfig');
+
+var DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..');
+var CONF_FILE_PATH = path.join(DEFAULT_MODULES_PATH, 'config.json');
+
+printConfig(require(CONF_FILE_PATH));

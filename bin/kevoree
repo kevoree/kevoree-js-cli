@@ -7,7 +7,9 @@ commander.version(pkg.version);
 
 commander.command('clean', 'Delete installed modules out of the cache folder');
 commander.command('init', 'Initialize Kevoree\'s config file');
+commander.command('login', 'Save your Kevoree registry credentials');
 commander.command('start', 'Start a Kevoree Javascript runtime');
+commander.command('config', 'Prints the current Kevoree config file');
 
 commander.parse(process.argv);
 

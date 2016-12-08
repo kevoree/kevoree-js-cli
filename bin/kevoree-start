@@ -85,7 +85,7 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
               try {
                 kevlib = path.resolve(rootModulesPath, dir, 'kevlib.json');
                 modelStr = fs.readFileSync(kevlib, 'utf8');
-              } catch (ignore) {}
+              } catch (ignore) { /* noop */ }
               if (modelStr) {
                 var dirModel = loader.loadModelFromString(modelStr).get(0);
                 compare.merge(ctxModel, dirModel).applyOn(ctxModel);

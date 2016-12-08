@@ -7,16 +7,14 @@ var mkdirp = require('mkdirp');
 var ora = require('ora');
 var chalk = require('chalk');
 var inquirer = require('inquirer');
-var validUrl = require('valid-url');
-var url = require('url');
-var Promise = require('es6-promise');
 var xtend = require('xtend');
+var Promise = require('es6-promise');
 var printConfig = require('../lib/printConfig');
 
 var DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..');
 var CONF_FILE_PATH = path.join(DEFAULT_MODULES_PATH, 'config.json');
 
-var spinner = ora('Initializing Kevoree config...').start();
+var spinner = ora('Initializing Kevoree login...').start();
 
 new Promise(function (resolve, reject) {
 	mkdirp(DEFAULT_MODULES_PATH, function (err) {
@@ -58,46 +56,39 @@ new Promise(function (resolve, reject) {
 	if (answer.overwrite) {
 		return inquirer.prompt([
 			{
-				name: 'registry',
+				name: 'login',
 				type: 'string',
-				message: 'Kevoree Registry URL',
-				default: 'https://registry.kevoree.org',
+				message: 'login',
 				validate: function (val) {
-					if (validUrl.isUri(val)) {
+					if (val.match(/^[a-z0-9]+$/)) {
 						return true;
 					}
-					return 'Invalid URI';
+					return 'Login must match ' + /^[a-z0-9]+$/;
 				}
-      },
+			},
 			{
-				name: 'clientSecret',
-				type: 'string',
-				default: 'kevoree_registryapp_secret',
-				message: 'Kevoree registry OAuth client_secret'
-      },
-			{
-				name: 'clientId',
-				type: 'string',
-				default: 'kevoree_registryapp',
-				message: 'Kevoree registry OAuth client_id'
-      }
+				name: 'password',
+				type: 'password',
+				message: 'password',
+				validate: function (val) {
+					if (val.length >= 6 && val.length <= 100) {
+						return true;
+					}
+					return 'Password must be at least 6 characters';
+				}
+			}
     ]).then(function (answers) {
-			var parsedUrl = url.parse(answers.registry);
-
 			var conf = JSON.stringify(
 				xtend(
-					require(CONF_FILE_PATH), {
-						registry: {
-							host: parsedUrl.host,
-							port: parsedUrl.port ? parsedUrl.port : 443,
-							ssl: parsedUrl.protocol === 'https:',
-							oauth: {
-								client_secret: answers.clientSecret,
-								client_id: answers.clientId
-							}
+					require(CONF_FILE_PATH),
+					{
+						user: {
+							login: answers.login,
+							password: answers.password
 						}
 					}
-				), null, 2);
+				), null, 2
+			);
 
 			return new Promise(function (resolve, reject) {
 				fs.writeFile(CONF_FILE_PATH, conf, {
