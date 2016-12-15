@@ -1,6 +1,6 @@
-add %node%, %%NODE1%% : JavascriptNode
-add sync: WSGroup
+add %%node%%: JavascriptNode/LATEST/LATEST
+add sync: WSGroup/LATEST/LATEST
 
-attach %node%, %%NODE1%% sync
+attach %%node%% sync
 
-network %node%.lo.ip 127.0.0.1
+network %%node%%.lo.ip %ip%

@@ -36,6 +36,14 @@ function validatePort(val) {
   }
 }
 
+var ctxVars = {};
+function aggregateCtxVars(arg) {
+	var splitted = arg.split('=');
+	var key = splitted[0];
+	var val = splitted[1];
+	ctxVars[key] = val;
+}
+
 fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
   if (err || !stats.isFile()) {
     log.error('Unable to find Kevoree\'s config file at:' + kConst.CONFIG_PATH);
@@ -45,10 +53,10 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 
     commander
       .option('-n --name <value>', 'Name of this runtime node platform (defaults to "node0")', validateName, 'node0')
-      .option('-g --group-name <value>', 'Name of the default group (defaults to "sync")', validateName, 'sync')
-      .option('-G --group-port <value>', 'Value of the default group port (defaults to 9000)', validatePort, 9000)
+      .option('-g --groupName <value>', 'Name of the default group (defaults to "sync")', validateName, 'sync')
+      .option('-G --groupPort <value>', 'Value of the default group port (defaults to 9000)', validatePort, 9000)
       .option('-m --model [value]', 'A model used to bootstrap the runtime (can be a .kevs or .json)')
-      .option('--ctxVar [key=value]', 'Context variables to use in the KevScript if any (eg. --ctxVar key=value --ctxVar key2=value2)')
+      .option('--ctxVar <key=value>', 'Context variables to use in the KevScript if any (eg. --ctxVar key=value --ctxVar key2=value2)', aggregateCtxVars)
       .option('-p --modules-path <value>', 'Path to the cache folder where modules will be installed (defaults to "' + DEFAULT_MODULES_PATH + '")', DEFAULT_MODULES_PATH)
       .option('-o --offline', 'Offline mode merges cached modules as context model')
       .option('--skipIntegrityCheck', 'Disable npm resolver integrity check (DEV only)')
@@ -113,13 +121,6 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
               } else {
                 if (path.extname(commander.model) === '.kevs') {
                   // parse model as KevScript
-                  var ctxVars = {};
-                  if (commander.ctxVar) {
-                    [].concat(commander.ctxVar).forEach(function (ctxvar) {
-                      var data = ctxvar.split('=');
-                      ctxVars[data[0]] = data[1];
-                    });
-                  }
 
 									var kevs = new KevScript(log);
 									var resolver = new NPMResolver(commander.modulesPath, log, commander.skipIntegrityCheck);
