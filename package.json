@@ -1,6 +1,6 @@
 {
   "name": "kevoree-cli",
-  "version": "5.7.6",
+  "version": "5.7.7",
   "author": "Maxime Tricoire <max.tricoire@gmail.com>",
   "main": "./lib/NodeJSRuntime",
   "preferGlobal": true,
@@ -8,7 +8,7 @@
     "kevoree": "./bin/kevoree"
   },
   "scripts": {
-		"lint": "eslint lib bin test",
+    "lint": "eslint lib bin test",
     "start": "node ./bin/kevoree"
   },
   "dependencies": {
