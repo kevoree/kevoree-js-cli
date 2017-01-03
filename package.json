@@ -1,6 +1,6 @@
 {
   "name": "kevoree-cli",
-  "version": "5.7.7",
+  "version": "5.7.8",
   "author": "Maxime Tricoire <max.tricoire@gmail.com>",
   "main": "./lib/NodeJSRuntime",
   "preferGlobal": true,
@@ -64,7 +64,11 @@
       "promise"
     ],
     "rules": {
-      "space-before-function-paren": 0,
+      "space-before-function-paren": ["error", {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "ignore"
+      }],
       "no-octal": 0,
       "no-native": 0,
       "no-console": 0

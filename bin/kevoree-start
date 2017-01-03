@@ -109,6 +109,10 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
           log.info('Offline modules merged: ' + cachedModules.join(', '));
         }
 
+				var kevs = new KevScript(log);
+				var resolver = new NPMResolver(commander.modulesPath, log, commander.skipIntegrityCheck);
+				var runtime = new NodeJSRuntime(commander.modulesPath, log, resolver, kevs);
+
         // read the model to deploy
         if (commander.model && commander.model.length > 0) {
           var ext = path.extname(commander.model);
@@ -121,10 +125,6 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
               } else {
                 if (path.extname(commander.model) === '.kevs') {
                   // parse model as KevScript
-
-									var kevs = new KevScript(log);
-									var resolver = new NPMResolver(commander.modulesPath, log, commander.skipIntegrityCheck);
-									var runtime = new NodeJSRuntime(commander.modulesPath, log, resolver, kevs);
 
 									runtime.on('stopped', function () {
 										process.exit(0);
@@ -192,10 +192,6 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 						process.exit(1);
           }
         } else {
-					var kevs = new KevScript(log);
-					var resolver = new NPMResolver(commander.modulesPath, log, commander.skipIntegrityCheck);
-					var runtime = new NodeJSRuntime(commander.modulesPath, log, resolver, kevs);
-
 					runtime.on('stopped', function () {
 						process.exit(0);
 					});
