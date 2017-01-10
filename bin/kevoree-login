@@ -78,9 +78,15 @@ new Promise(function (resolve, reject) {
 				}
 			}
     ]).then(function (answers) {
+			var confFile;
+			try {
+				confFile = require(CONF_FILE_PATH);
+			} catch (ignore) {
+				confFile = {};
+			}
 			var conf = JSON.stringify(
 				xtend(
-					require(CONF_FILE_PATH),
+					confFile,
 					{
 						user: {
 							login: answers.login,
