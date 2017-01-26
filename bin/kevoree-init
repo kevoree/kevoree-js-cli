@@ -93,7 +93,7 @@ new Promise(function (resolve, reject) {
 				xtend(
 					confFile, {
 						registry: {
-							host: parsedUrl.host,
+							host: parsedUrl.hostname,
 							port: parsedUrl.port ? parsedUrl.port : 443,
 							ssl: parsedUrl.protocol === 'https:',
 							oauth: {
