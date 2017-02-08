@@ -23,7 +23,9 @@ $ kevoree
 
     clean       Delete installed modules out of the cache folder
     init        Initialize Kevoree's config file
+    login       Save your Kevoree registry credentials
     start       Start a Kevoree Javascript runtime
+    config      Prints the current Kevoree config file
     help [cmd]  display help for [cmd]
 
   Options:
