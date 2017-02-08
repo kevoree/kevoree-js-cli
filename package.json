@@ -1,6 +1,6 @@
 {
   "name": "kevoree-cli",
-  "version": "5.7.11",
+  "version": "5.7.12",
   "author": "Maxime Tricoire <max.tricoire@gmail.com>",
   "main": "./lib/NodeJSRuntime",
   "preferGlobal": true,
@@ -28,6 +28,7 @@
     "tiny-conf": "^1.0.4",
     "tiny-conf-plugin-argv": "^1.0.1",
     "tiny-conf-plugin-file": "^1.0.1",
+    "update-notifier": "^1.0.3",
     "valid-url": "^1.0.9",
     "xtend": "^4.0.1"
   },
@@ -64,11 +65,14 @@
       "promise"
     ],
     "rules": {
-      "space-before-function-paren": ["error", {
-        "anonymous": "always",
-        "named": "never",
-        "asyncArrow": "ignore"
-      }],
+      "space-before-function-paren": [
+        "error",
+        {
+          "anonymous": "always",
+          "named": "never",
+          "asyncArrow": "ignore"
+        }
+      ],
       "no-octal": 0,
       "no-native": 0,
       "no-console": 0
