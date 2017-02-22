@@ -4,9 +4,7 @@ var commander = require('commander');
 var updateNotifier = require('update-notifier');
 var pkg = require('../package.json');
 
-updateNotifier({
-	pkg: pkg
-}).notify();
+updateNotifier({ pkg: pkg }).notify();
 
 commander.version(pkg.version);
 
