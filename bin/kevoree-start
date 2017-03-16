@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var INSTANCE_NAME = /^([a-z][a-zA-Z0-9_]*)|(%%[\w]+%%)$/;
+var INSTANCE_NAME = /^([a-z][a-zA-Z0-9_]*)|(%%[\w]+%%)|(%[\w]+%)$/;
 
 var fs = require('fs');
 var path = require('path');
@@ -17,26 +17,27 @@ var NodeJSRuntime = require('../lib/NodeJSRuntime');
 var log = new kCommons.Logger('Runtime');
 
 function validateName(val) {
-  var match = INSTANCE_NAME.exec(val);
-  if (match) {
-    return match[0];
-  } else {
-    log.error('Invalid name \'' + val + '\' (must comply with ' + INSTANCE_NAME + ')');
+	var match = INSTANCE_NAME.exec(val);
+	if (match) {
+		return match[0];
+	} else {
+		log.error('Invalid name \'' + val + '\' (must comply with ' + INSTANCE_NAME + ')');
 		process.exit(1);
-  }
+	}
 }
 
 function validatePort(val) {
-  var match = /^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/.exec(val);
-  if (match) {
-    return match[0];
-  } else {
-    log.error('Invalid port value \'' + val + '\'');
+	var match = /^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/.exec(val);
+	if (match) {
+		return match[0];
+	} else {
+		log.error('Invalid port value \'' + val + '\'');
 		process.exit(1);
-  }
+	}
 }
 
 var ctxVars = {};
+
 function aggregateCtxVars(arg) {
 	var splitted = arg.split('=');
 	var key = splitted[0];
@@ -45,86 +46,86 @@ function aggregateCtxVars(arg) {
 }
 
 fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
-  if (err || !stats.isFile()) {
-    log.error('Unable to find Kevoree\'s config file at:' + kConst.CONFIG_PATH);
+	if (err || !stats.isFile()) {
+		log.error('Unable to find Kevoree\'s config file at:' + kConst.CONFIG_PATH);
 		process.exit(1);
-  } else {
-    var DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..');
+	} else {
+		var DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..');
 
-    commander
-      .option('-n --name <value>', 'Name of this runtime node platform (defaults to "node0")', validateName, 'node0')
-      .option('-g --groupName <value>', 'Name of the default group (defaults to "sync")', validateName, 'sync')
-      .option('-G --groupPort <value>', 'Value of the default group port (defaults to 9000)', validatePort, 9000)
-      .option('-m --model [value]', 'A model used to bootstrap the runtime (can be a .kevs or .json)')
-      .option('--ctxVar <key=value>', 'Context variables to use in the KevScript if any (eg. --ctxVar key=value --ctxVar key2=value2)', aggregateCtxVars)
-      .option('-p --modules-path <value>', 'Path to the cache folder where modules will be installed (defaults to "' + DEFAULT_MODULES_PATH + '")', DEFAULT_MODULES_PATH)
-      .option('-o --offline', 'Offline mode merges cached modules as context model')
-      .option('--skipIntegrityCheck', 'Disable npm resolver integrity check (DEV only)')
-      .allowUnknownOption()
-      .parse(process.argv);
+		commander
+			.option('-n --name <value>', 'Name of this runtime node platform (defaults to "node0")', validateName, 'node0')
+			.option('-g --groupName <value>', 'Name of the default group (defaults to "sync")', validateName, 'sync')
+			.option('-G --groupPort <value>', 'Value of the default group port (defaults to 9000)', validatePort, 9000)
+			.option('-m --model [value]', 'A model used to bootstrap the runtime (can be a .kevs or .json)')
+			.option('--ctxVar <key=value>', 'Context variables to use in the KevScript if any (eg. --ctxVar key=value --ctxVar key2=value2)', aggregateCtxVars)
+			.option('-p --modules-path <value>', 'Path to the cache folder where modules will be installed (defaults to "' + DEFAULT_MODULES_PATH + '")', DEFAULT_MODULES_PATH)
+			.option('-o --offline', 'Offline mode merges cached modules as context model')
+			.option('--skipIntegrityCheck', 'Disable npm resolver integrity check (DEV only)')
+			.allowUnknownOption()
+			.parse(process.argv);
 
-    require('tiny-conf-plugin-file')(config, kConst.CONFIG_PATH);
-    require('tiny-conf-plugin-argv')(config);
+		require('tiny-conf-plugin-file')(config, kConst.CONFIG_PATH);
+		require('tiny-conf-plugin-argv')(config);
 
-    var logLevel = config.get('log.level');
-    if (logLevel) {
-      log.setLevel(logLevel);
-    }
+		var logLevel = config.get('log.level');
+		if (logLevel) {
+			log.setLevel(logLevel);
+		}
 
-    mkdirp(commander.modulesPath, function (err) {
-      if (err) {
-        throw err;
-      } else {
-        var factory = new kLibrary.factory.DefaultKevoreeFactory();
-        var loader = factory.createJSONLoader();
+		mkdirp(commander.modulesPath, function (err) {
+			if (err) {
+				throw err;
+			} else {
+				var factory = new kLibrary.factory.DefaultKevoreeFactory();
+				var loader = factory.createJSONLoader();
 
-        var ctxModel = factory.createContainerRoot().withGenerated_KMF_ID(0);
-        factory.root(ctxModel);
+				var ctxModel = factory.createContainerRoot().withGenerated_KMF_ID(0);
+				factory.root(ctxModel);
 
-        if (commander.offline) {
-          config.set('offline', true);
-          log.info('Loading cached modules for offline mode...');
-          var cachedModules = [];
-          try {
-            var rootModulesPath = path.resolve(commander.modulesPath, 'node_modules');
-            var dirs = fs.readdirSync(rootModulesPath);
-            var compare = factory.createModelCompare();
-            dirs.forEach(function (dir) {
-              var kevlib, modelStr;
-              try {
-                kevlib = path.resolve(rootModulesPath, dir, 'kevlib.json');
-                modelStr = fs.readFileSync(kevlib, 'utf8');
-              } catch (ignore) { /* noop */ }
-              if (modelStr) {
-                var dirModel = loader.loadModelFromString(modelStr).get(0);
-                compare.merge(ctxModel, dirModel).applyOn(ctxModel);
-                cachedModules.push(path.basename(path.join(kevlib, '..')));
-              }
-            });
-          } catch (err) {
-            if (err.code !== 'ENOENT') {
-              throw err;
-            }
-          }
-          log.info('Offline modules merged: ' + cachedModules.join(', '));
-        }
+				if (commander.offline) {
+					config.set('offline', true);
+					log.info('Loading cached modules for offline mode...');
+					var cachedModules = [];
+					try {
+						var rootModulesPath = path.resolve(commander.modulesPath, 'node_modules');
+						var dirs = fs.readdirSync(rootModulesPath);
+						var compare = factory.createModelCompare();
+						dirs.forEach(function (dir) {
+							var kevlib, modelStr;
+							try {
+								kevlib = path.resolve(rootModulesPath, dir, 'kevlib.json');
+								modelStr = fs.readFileSync(kevlib, 'utf8');
+							} catch (ignore) { /* noop */ }
+							if (modelStr) {
+								var dirModel = loader.loadModelFromString(modelStr).get(0);
+								compare.merge(ctxModel, dirModel).applyOn(ctxModel);
+								cachedModules.push(path.basename(path.join(kevlib, '..')));
+							}
+						});
+					} catch (err) {
+						if (err.code !== 'ENOENT') {
+							throw err;
+						}
+					}
+					log.info('Offline modules merged: ' + cachedModules.join(', '));
+				}
 
 				var kevs = new KevScript(log);
 				var resolver = new NPMResolver(commander.modulesPath, log, commander.skipIntegrityCheck);
 				var runtime = new NodeJSRuntime(commander.modulesPath, log, resolver, kevs);
 
-        // read the model to deploy
-        if (commander.model && commander.model.length > 0) {
-          var ext = path.extname(commander.model);
-          if ((ext === '.kevs') || (ext === '.json')) {
-            // use model as bootstrap
-            fs.readFile(commander.model, 'utf8', function (err, modelSrc) {
-              if (err) {
-                log.error(err.message);
-                process.exit(1);
-              } else {
-                if (path.extname(commander.model) === '.kevs') {
-                  // parse model as KevScript
+				// read the model to deploy
+				if (commander.model && commander.model.length > 0) {
+					var ext = path.extname(commander.model);
+					if ((ext === '.kevs') || (ext === '.json')) {
+						// use model as bootstrap
+						fs.readFile(commander.model, 'utf8', function (err, modelSrc) {
+							if (err) {
+								log.error(err.message);
+								process.exit(1);
+							} else {
+								if (path.extname(commander.model) === '.kevs') {
+									// parse model as KevScript
 
 									runtime.on('stopped', function () {
 										process.exit(0);
@@ -134,64 +135,76 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 										log.error(err.stack);
 									});
 
-                  kevs.parse(modelSrc, ctxModel, ctxVars, function (err, model) {
-                    if (err) {
-                      log.error('Unable to load KevScript: ');
-                      log.error(err.stack);
-                      log.error('Platform shut down.');
-                      process.exit(1);
-                    } else {
-                      var keys = Object.keys(ctxVars);
-                      if (keys.length > 0) {
-                        var strCtxVars = '';
-                        keys.forEach(function (key, i) {
-                          strCtxVars += key + '=' + ctxVars[key];
-                          if (i < keys.length - 1) {
-                            strCtxVars += ', ';
-                          }
-                        });
-                        log.debug('KevScript context variables: ' + strCtxVars);
-                      }
-                      // start kevoree core
-                      var nodeName = commander.name;
-                      if (nodeName.startsWith('%%') && nodeName.endsWith('%%')) {
-                        nodeName = ctxVars[nodeName.substring(2, nodeName.length - 2)];
-                      }
-                      if (nodeName.startsWith('%') && nodeName.endsWith('%')) {
-                        nodeName = ctxVars[nodeName.substring(1, nodeName.length - 1)];
-                      }
-                      // start kevoree core
-                      runtime.start(nodeName, commander.groupName, commander.groupPort, logLevel);
+									kevs.parse(modelSrc, ctxModel, ctxVars, function (err, model) {
+										if (err) {
+											log.error('Unable to load KevScript: ');
+											log.error(err.stack);
+											log.error('Platform shut down.');
+											process.exit(1);
+										} else {
+											var keys = Object.keys(ctxVars);
+											if (keys.length > 0) {
+												var strCtxVars = '';
+												keys.forEach(function (key, i) {
+													strCtxVars += key + '=' + ctxVars[key];
+													if (i < keys.length - 1) {
+														strCtxVars += ', ';
+													}
+												});
+												log.debug('KevScript context variables: ' + strCtxVars);
+											}
+											// start kevoree core
+											var nodeName = commander.name;
+											if (nodeName.startsWith('%%') && nodeName.endsWith('%%')) {
+												var genCtxVarVal = ctxVars[nodeName.substring(2, nodeName.length - 2)];
+												if (!genCtxVarVal) {
+													log.error('There is no value for generated context variable '+nodeName);
+													process.exit(1);
+												} else {
+													nodeName = genCtxVarVal;
+												}
+											} else if (nodeName.startsWith('%') && nodeName.endsWith('%')) {
+												var ctxVarVal = ctxVars[nodeName.substring(1, nodeName.length - 1)];
+												if (!ctxVarVal) {
+													log.error('There is no value for context variable '+nodeName);
+													process.exit(1);
+												} else {
+													nodeName = ctxVarVal;
+												}
+											}
 
-                      // deploy the model
-                      runtime.deploy(model);
-                    }
-                  });
-                } else {
-                  // parse model as JSON
-                  var modelPath = path.resolve(commander.model);
-                  var model;
-                  try {
-                    var modelStr = fs.readFileSync(modelPath, 'utf8');
-                    model = loader.loadModelFromString(modelStr).get(0);
-                  } catch (err) {
-                    log.error('Unable to load JSON model:');
-                    log.error(err.stack);
-                    process.exit(1);
-                  }
+											// start kevoree core
+											runtime.start(nodeName, commander.groupName, commander.groupPort, logLevel);
 
-                  // start kevoree core
-                  runtime.start(commander.name, commander.groupName, commander.groupPort, logLevel);
-                  // deploy the model
-                  runtime.deploy(model);
-                }
-              }
-            });
-          } else {
+											// deploy the model
+											runtime.deploy(model);
+										}
+									});
+								} else {
+									// parse model as JSON
+									var modelPath = path.resolve(commander.model);
+									var model;
+									try {
+										var modelStr = fs.readFileSync(modelPath, 'utf8');
+										model = loader.loadModelFromString(modelStr).get(0);
+									} catch (err) {
+										log.error('Unable to load JSON model:');
+										log.error(err.stack);
+										process.exit(1);
+									}
+
+									// start kevoree core
+									runtime.start(commander.name, commander.groupName, commander.groupPort, logLevel);
+									// deploy the model
+									runtime.deploy(model);
+								}
+							}
+						});
+					} else {
 						log.error('Only .kevs or .json model can be used for bootstrap.');
 						process.exit(1);
-          }
-        } else {
+					}
+				} else {
 					runtime.on('stopped', function () {
 						process.exit(0);
 					});
@@ -200,12 +213,12 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 						log.error(err.stack);
 					});
 
-          // start kevoree core
-          runtime.start(commander.name, commander.groupName, commander.groupPort, logLevel);
-          // deploy null model => it will create a default one
-          runtime.deploy();
-        }
-      }
-    });
-  }
+					// start kevoree core
+					runtime.start(commander.name, commander.groupName, commander.groupPort, logLevel);
+					// deploy null model => it will create a default one
+					runtime.deploy();
+				}
+			}
+		});
+	}
 });
