@@ -67,6 +67,11 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 		require('tiny-conf-plugin-file')(config, kConst.CONFIG_PATH);
 		require('tiny-conf-plugin-argv')(config);
 
+		config.set('cache', {
+			root: path.join(kConst.CONFIG_PATH, '..', 'tdefs'),
+			ttl: 1000 * 60 * 60 * 24 // 24 hours
+		});
+
 		var logLevel = config.get('log.level');
 		if (logLevel) {
 			log.setLevel(logLevel);
@@ -110,7 +115,11 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 					log.info('Offline modules merged: ' + cachedModules.join(', '));
 				}
 
-				var kevs = new KevScript(log);
+				var rootResolver = KevScript.Resolvers.tagResolverFactory(log,
+					KevScript.Resolvers.modelResolverFactory(log,
+						KevScript.Resolvers.fsResolverFactory(log, config.get('cache.root'), config.get('cache.ttl'),
+							KevScript.Resolvers.registryResolverFactory(log))));
+				var kevs = new KevScript(log, { resolver: rootResolver });
 				var resolver = new NPMResolver(commander.modulesPath, log, commander.skipIntegrityCheck);
 				var runtime = new NodeJSRuntime(commander.modulesPath, log, resolver, kevs);
 
