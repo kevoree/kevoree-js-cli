@@ -67,10 +67,17 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 		require('tiny-conf-plugin-file')(config, kConst.CONFIG_PATH);
 		require('tiny-conf-plugin-argv')(config);
 
-		config.set('cache', {
-			root: path.join(kConst.CONFIG_PATH, '..', 'tdefs'),
-			ttl: 1000 * 60 * 60 * 24 // 24 hours
-		});
+		var cache = config.get('cache');
+		if (!cache) {
+			cache = {};
+			config.set('cache', cache);
+		}
+		if (!cache.root) {
+			cache.root = path.join(kConst.CONFIG_PATH, '..', 'tdefs');
+		}
+		if (!cache.ttl) {
+			cache.ttl = 1000 * 60 * 60 * 24; // 24 hours
+		}
 
 		var logLevel = config.get('log.level');
 		if (logLevel) {
@@ -117,9 +124,11 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 
 				var rootResolver = KevScript.Resolvers.tagResolverFactory(log,
 					KevScript.Resolvers.modelResolverFactory(log,
-						KevScript.Resolvers.fsResolverFactory(log, config.get('cache.root'), config.get('cache.ttl'),
+						KevScript.Resolvers.fsResolverFactory(log,
 							KevScript.Resolvers.registryResolverFactory(log))));
-				var kevs = new KevScript(log, { resolver: rootResolver });
+				var kevs = new KevScript(log, {
+					resolver: rootResolver
+				});
 				var resolver = new NPMResolver(commander.modulesPath, log, commander.skipIntegrityCheck);
 				var runtime = new NodeJSRuntime(commander.modulesPath, log, resolver, kevs);
 
@@ -146,7 +155,6 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 
 									kevs.parse(modelSrc, ctxModel, ctxVars, function (err, model) {
 										if (err) {
-											log.error('Unable to load KevScript: ');
 											log.error(err.stack);
 											log.error('Platform shut down.');
 											process.exit(1);
@@ -167,7 +175,7 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 											if (nodeName.startsWith('%%') && nodeName.endsWith('%%')) {
 												var genCtxVarVal = ctxVars[nodeName.substring(2, nodeName.length - 2)];
 												if (!genCtxVarVal) {
-													log.error('There is no value for generated context variable '+nodeName);
+													log.error('There is no value for generated context variable ' + nodeName);
 													process.exit(1);
 												} else {
 													nodeName = genCtxVarVal;
@@ -175,7 +183,7 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 											} else if (nodeName.startsWith('%') && nodeName.endsWith('%')) {
 												var ctxVarVal = ctxVars[nodeName.substring(1, nodeName.length - 1)];
 												if (!ctxVarVal) {
-													log.error('There is no value for context variable '+nodeName);
+													log.error('There is no value for context variable ' + nodeName);
 													process.exit(1);
 												} else {
 													nodeName = ctxVarVal;

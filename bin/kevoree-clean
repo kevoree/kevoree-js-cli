@@ -6,13 +6,16 @@ var kConst = require('kevoree-const');
 var ora = require('ora');
 var chalk = require('chalk');
 
-var DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..', 'node_modules');
+var NODE_MODULES = path.join(kConst.CONFIG_PATH, '..', 'node_modules');
+var TDEFS = path.join(kConst.CONFIG_PATH, '..', 'tdefs');
 
-var spinner = ora('Cleaning ' + DEFAULT_MODULES_PATH + '...');
+var spinner = ora('Cleaning ' + NODE_MODULES + '...');
 
 try {
-  console.log('Cleaning ' + chalk.gray(DEFAULT_MODULES_PATH));
-  rmrf(DEFAULT_MODULES_PATH);
+  console.log('Cleaning ' + chalk.gray(NODE_MODULES));
+  rmrf(NODE_MODULES);
+	console.log('Cleaning ' + chalk.gray(TDEFS));
+	rmrf(TDEFS);
   spinner.stop();
   console.log(chalk.green('Done'));
 } catch (err) {
