@@ -124,8 +124,7 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 
 				var rootResolver = KevScript.Resolvers.tagResolverFactory(log,
 					KevScript.Resolvers.modelResolverFactory(log,
-						KevScript.Resolvers.fsResolverFactory(log,
-							KevScript.Resolvers.registryResolverFactory(log))));
+							KevScript.Resolvers.registryResolverFactory(log)));
 				var kevs = new KevScript(log, {
 					resolver: rootResolver
 				});

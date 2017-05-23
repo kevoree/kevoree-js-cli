@@ -1,0 +1,17 @@
+---
+parserOptions:
+  ecmaVersion:                 6
+env:
+  node:                        true
+extends:                       eslint:recommended
+rules:
+  space-before-function-paren:
+  - error
+  - anonymous:                 always
+    named:                     never
+    asyncArrow:                ignore
+  no-octal:                    0
+  no-native:                   0
+  no-console:                  0
+globals:
+  Promise: true

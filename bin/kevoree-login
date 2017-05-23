@@ -7,8 +7,6 @@ var mkdirp = require('mkdirp');
 var ora = require('ora');
 var chalk = require('chalk');
 var inquirer = require('inquirer');
-var xtend = require('xtend');
-var Promise = require('es6-promise');
 var printConfig = require('../lib/printConfig');
 
 var DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..');
@@ -85,7 +83,7 @@ new Promise(function (resolve, reject) {
 				confFile = {};
 			}
 			var conf = JSON.stringify(
-				xtend(
+				Object.assign(
 					confFile,
 					{
 						user: {

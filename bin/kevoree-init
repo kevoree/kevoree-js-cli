@@ -9,8 +9,6 @@ var chalk = require('chalk');
 var inquirer = require('inquirer');
 var validUrl = require('valid-url');
 var url = require('url');
-var Promise = require('es6-promise');
-var xtend = require('xtend');
 var printConfig = require('../lib/printConfig');
 
 var DEFAULT_MODULES_PATH = path.join(kConst.CONFIG_PATH, '..');
@@ -90,7 +88,7 @@ new Promise(function (resolve, reject) {
 				confFile = {};
 			}
 			var conf = JSON.stringify(
-				xtend(
+				Object.assign(
 					confFile, {
 						registry: {
 							host: parsedUrl.hostname,
