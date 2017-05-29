@@ -8,13 +8,20 @@ updateNotifier({ pkg: pkg }).notify();
 
 commander.version(pkg.version);
 
-commander.command('clean', 'Delete installed modules out of the cache folder');
-commander.command('init', 'Initialize Kevoree\'s config file');
-commander.command('login', 'Save your Kevoree registry credentials');
-commander.command('start', 'Start a Kevoree Javascript runtime');
-commander.command('config', 'Prints the current Kevoree config file');
+const program = commander
+  .command('clean', 'Delete installed modules out of the cache folder')
+  .command('init', 'Initialize Kevoree\'s config file')
+  .command('login', 'Save your Kevoree registry credentials')
+  .command('start', 'Start a Kevoree Javascript runtime')
+  .command('config', 'Prints the current Kevoree config file');
 
 commander.parse(process.argv);
+
+process.on('SIGTERM', () => {
+  if (program.runningCommand) {
+    program.runningCommand.kill('SIGTERM');
+  }
+});
 
 process.on('SIGINT', function () {
   /* noop to prevent commander to mess with the stdout */
