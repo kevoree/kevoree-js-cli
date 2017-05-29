@@ -2,6 +2,7 @@
 
 var INSTANCE_NAME = /^([a-z][a-zA-Z0-9_]*)|(%%[\w]+%%)|(%[\w]+%)$/;
 
+var os = require('os');
 var fs = require('fs');
 var path = require('path');
 var commander = require('commander');
@@ -122,6 +123,7 @@ fs.lstat(kConst.CONFIG_PATH, function (err, stats) {
 					log.info('Offline modules merged: ' + cachedModules.join(', '));
 				}
 
+        log.info('Runtime', `Kevoree NodeJS [PID:${process.pid}@${os.hostname()}]`)
 				var rootResolver = KevScript.Resolvers.tagResolverFactory(log,
 					KevScript.Resolvers.modelResolverFactory(log,
 							KevScript.Resolvers.registryResolverFactory(log)));
